@@ -11,5 +11,13 @@ class GLogger(CGLogger):
         cls.print("MOVE %d %d %s"%(pos[0], pos[1], comment))
 
     @classmethod
-    def spell(cls, spell, pos, comment=""):
-        cls.print("SPELL %s %d %d %s"%(spell, pos[0], pos[1], comment))
+    def spell_wind(cls, pos, comment=""):
+        cls.print("SPELL WIND %d %d %s"%(pos[0], pos[1], comment))
+
+    @classmethod
+    def spell_shield(cls, pos, comment=""):
+        cls.print("SPELL SHIELD %d %d %s"%(pos[0], pos[1], comment))
+
+    @classmethod
+    def spell_control(cls, id, pos, comment=""):
+        cls.print("SPELL CONTROL %d %d %d %s"%(id, pos[0], pos[1], comment))

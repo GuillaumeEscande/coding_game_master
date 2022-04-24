@@ -12,8 +12,6 @@ initializer = Initializer()
 
 board = initializer.read_board()
 
-GLogger.debug(board)
-
 heroes_per_player = int(input())  # Always 3
 
 while True:
@@ -23,6 +21,7 @@ while True:
 
     strategy = Strategy(board, game)
     
-    strategy.play_defensive(game.my_heros[0], board.pos_def_1)
-    strategy.play_defensive(game.my_heros[1], board.pos_def_2)
-    strategy.play_defensive(game.my_heros[2], board.pos_def_3)
+    strategy.play_defensive(game.my_heros[0], board.pos_def_2_1)
+    strategy.play_defensive(game.my_heros[1], board.pos_def_2_2)
+
+    strategy.play_ultra_defensive(game.my_heros[2], board.pos_center_ultradef)

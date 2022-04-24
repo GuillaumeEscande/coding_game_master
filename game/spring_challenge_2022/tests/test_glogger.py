@@ -17,8 +17,22 @@ def test_wait(capsys):
     assert captured.out == "WAIT comment\n"
 
     
-def test_spell(capsys):
+def test_spell_wind(capsys):
     position = numpy.array([10, 20])
-    GLogger.spell("test" , [10, 20],  "comment")
+    GLogger.spell_wind([10, 20],  "comment")
     captured = capsys.readouterr()
-    assert captured.out == "SPELL test 10 20 comment\n"
+    assert captured.out == "SPELL WIND 10 20 comment\n"
+
+    
+def test_spell_shield(capsys):
+    position = numpy.array([10, 20])
+    GLogger.spell_shield([10, 20],  "comment")
+    captured = capsys.readouterr()
+    assert captured.out == "SPELL SHIELD 10 20 comment\n"
+
+    
+def test_spell_control(capsys):
+    position = numpy.array([10, 20])
+    GLogger.spell_control(10, [10, 20],  "comment")
+    captured = capsys.readouterr()
+    assert captured.out == "SPELL CONTROL 10 10 20 comment\n"

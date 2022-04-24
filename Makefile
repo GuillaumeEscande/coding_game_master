@@ -1,5 +1,5 @@
 
-all: test merge
+all: tests merge
 
 tests: libs games
 

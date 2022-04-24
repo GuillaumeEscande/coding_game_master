@@ -1,5 +1,7 @@
 import numpy
 
+from board import Board
+
 class Initializer():
     def __init__(self):
         pass
