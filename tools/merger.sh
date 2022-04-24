@@ -49,12 +49,14 @@ do
 done
 
 
-for file in $(ls ./game/${SRC}/src/*.py)
+for file in $(ls ./game/${SRC}/src/*.py | grep -v main.py)
 do
     cat $file >> "${OUTPUT_SRC}"
     echo "" >> "${OUTPUT_SRC}"
 done
 
+cat ./game/${SRC}/src/main.py >> "${OUTPUT_SRC}"
+echo "" >> "${OUTPUT_SRC}"
 
 for LIB in ${LIBS[@]}
 do
@@ -68,8 +70,6 @@ do
     filename="${filename%.*}"
     sed -i "s|^from $filename.*||g" "${OUTPUT_SRC}"
 done
-
-set -x
 
 # Remove comments
 perl -i -0pe 's|#.*||g' "${OUTPUT_SRC}"
