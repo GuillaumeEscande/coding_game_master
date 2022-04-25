@@ -1,6 +1,10 @@
 import numpy 
 from enum import Enum
 
+CONST_WIND_RANGE = 1280
+CONST_SHIELD_RANGE = 2200
+CONST_CONTROL_RANGE = 2200
+
 class Spell(Enum):
     WIND = "WIND"
     SHIELD = "SHIELD"

@@ -77,6 +77,10 @@ class Board() :
     @property
     def pos_center_ultradef(self):
         return self.__pos_center_ultradef
+
+    @property
+    def pos_center_offensive(self):
+        return self.center()
         
 
     def get_pos_from_base(self, angle_deg, distance):
@@ -96,15 +100,10 @@ class Board() :
 
     def get_distance_of(self, origin, target):
         distance_vect = origin - target
-
-        GLogger.debug("origin", origin)
-        GLogger.debug("target", target)
-        GLogger.debug("distance_vect", distance_vect)
-        GLogger.debug("get_distance_of", numpy.linalg.norm(distance_vect))
-
         return numpy.linalg.norm(distance_vect)
 
     def better_defensive_attack(self, hero, base, monster):
+        # TODO utiliser la diretion du monstre plusot que la position de la base
         dir_monster_base = monster.pos - base
         dir_monster_base_normv = dir_monster_base/numpy.linalg.norm(dir_monster_base)
         step = dir_monster_base_normv * Hero.attack_range() * 0.9

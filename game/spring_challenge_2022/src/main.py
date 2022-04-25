@@ -21,7 +21,8 @@ while True:
 
     strategy = Strategy(board, game)
     
-    strategy.play_defensive(game.my_heros[0], board.pos_def_2_1)
-    strategy.play_defensive(game.my_heros[1], board.pos_def_2_2)
+    strategy.play_defensive(game.my_heros[0], board.pos_center_def)
+
+    strategy.play_offensive_control(game.my_heros[1], board.pos_center_offensive)
 
     strategy.play_ultra_defensive(game.my_heros[2], board.pos_center_ultradef)
