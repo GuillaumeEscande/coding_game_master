@@ -25,7 +25,16 @@ class Strategy() :
             point_hero = self.__board.better_defensive_attack(hero, self.__board.my_base, monster)
             GLogger.move(point_hero)
         else:
-            GLogger.move(default_pos)
+            nearest_monsters = self.__board.get_nearest_monsters(hero.pos, self.__game.monsters)
+            if len(nearest_monsters):
+                monster = nearest_monsters[0]
+                if self.__board.get_distance_of(self.__board.my_base, monster.pos) < 10000 :
+                    point_hero = self.__board.better_defensive_attack(hero, default_pos, monster)
+                    GLogger.move(point_hero)
+                else:
+                    GLogger.move(default_pos)
+            else:
+                GLogger.move(default_pos)
 
 
 
@@ -40,7 +49,8 @@ class Strategy() :
             # Get distance of base
             base_distance = self.__board.get_distance_of(self.__board.my_base, monster.pos)
             if base_distance < 2000:
-                GLogger.spell_control(monster.id, self.__board.ennemy_base)
+                #GLogger.spell_control(monster.id, self.__board.ennemy_base)
+                GLogger.spell_wind(self.__board.ennemy_base)
             else :
                 point_hero = self.__board.better_defensive_attack(hero, self.__board.my_base, monster)
                 GLogger.move(point_hero)
@@ -51,9 +61,14 @@ class Strategy() :
 
     def play_offensive_control(self, hero, default_pos):
         
-        potential_threat_monsters = set(self.__game.potential_threat_monsters)
+        potential_threat_monsters = self.__game.potential_threat_monsters
+        
+        GLogger.debug( [str(m.id) for m in potential_threat_monsters] )
+        GLogger.debug( monster_to_ignore )
 
-        potential_threat_monsters = potential_threat_monsters.difference(monster_to_ignore)
+        potential_threat_monsters = list(set(monster_to_ignore).difference(set(potential_threat_monsters)))
+        
+        GLogger.debug( [str(m.id) for m in potential_threat_monsters] )
         
         if not len(potential_threat_monsters):
             GLogger.move(default_pos)
