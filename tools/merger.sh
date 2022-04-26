@@ -79,3 +79,8 @@ perl -i -0pe 's|^\s*\n||gms' "${OUTPUT_SRC}"
 
 # Remove indexation
 perl -i -0pe 's|    | |g' "${OUTPUT_SRC}"
+
+# Remove unless spaces
+perl -i -0pe 's| :|:|g' "${OUTPUT_SRC}"
+perl -i -0pe 's| =|=|g' "${OUTPUT_SRC}"
+perl -i -0pe 's|= |=|g' "${OUTPUT_SRC}"

@@ -3,9 +3,11 @@ import numpy
 from cglogger import CGLogger
 
 class Board() :
+    SIZE = numpy.array([17630, 9000])
+
     def __init__(self, my_base):
         self.__my_base = my_base
-        if self.is_top_left :
+        if self.is_top_left(self.__my_base) :
             self.__base_dir = 1
         else :
             self.__base_dir = -1
@@ -18,25 +20,34 @@ class Board() :
         self.__pos_def_2_2 = self.get_pos_from_base(60, 4000)
         self.__pos_center_def = self.get_pos_from_base(45, 6000)
         self.__pos_center_ultradef = self.get_pos_from_base(45, 2000)
+        
+        self.__pos_center_ultradef = self.get_pos_from_base(45, 2000)
+
+        self.__pos_ultra_attack = self.get_pos_from_base(45, 4000, base=self.ennemy_base(self.__my_base))
+        GLogger.debug(self.__pos_ultra_attack)
 
     @property
     def my_base(self):
         return self.__my_base
 
-    @property
-    def ennemy_base(self):
-        if self.is_top_left:
+    def ennemy_base(self, base=None):
+        if self.is_top_left(base):
             return Board.bottom_right()
         else:
             return Board.top_left()
-
+            
     @property
-    def is_top_left(self):
-        return numpy.array_equal(self.__my_base, Board.top_left())
+    def my_ennemy_base(self):
+        return self.ennemy_base(base=self.__my_base)
+
+    def is_top_left(self, base=None):
+        if base is None :
+            base = self.__my_base
+        return numpy.array_equal(base, Board.top_left())
 
     @classmethod
     def size(cls):
-        return numpy.array([17630, 9000])
+        return Board.SIZE
 
     @classmethod
     def center(cls):
@@ -81,14 +92,20 @@ class Board() :
     @property
     def pos_center_offensive(self):
         return self.center()
+
+    @property
+    def pos_ultra_attack(self):
+        return self.__pos_ultra_attack
         
 
-    def get_pos_from_base(self, angle_deg, distance):
+    def get_pos_from_base(self, angle_deg, distance, base=None):
+        if base is None :
+            base = self.__my_base
         rot_vectom = numpy.array([numpy.cos(numpy.deg2rad(angle_deg)), numpy.sin(numpy.deg2rad(angle_deg))])
-        if self.is_top_left:
-            pos_f = self.__my_base + rot_vectom * distance
+        if self.is_top_left(base):
+            pos_f = base + rot_vectom * distance
         else :
-            pos_f = self.__my_base - rot_vectom[::-1] * distance
+            pos_f = base - rot_vectom[::-1] * distance
 
         return pos_f.astype(int)
         
@@ -102,7 +119,7 @@ class Board() :
         distance_vect = origin - target
         return numpy.linalg.norm(distance_vect)
 
-    def better_defensive_attack(self, hero, base, monster):
+    def better_defensive_pos(self, hero, base, monster):
         # TODO utiliser la diretion du monstre plusot que la position de la base
         dir_monster_base = monster.pos - base
         dir_monster_base_normv = dir_monster_base/numpy.linalg.norm(dir_monster_base)

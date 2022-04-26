@@ -7,13 +7,13 @@ libs: cglogger
 
 cglogger: 
 	cd libs/cglogger  && \
-	python3 -m pytest tests
+	python3 -m pytest tests --cov=src
 
 games: spring_challenge_2022
 
 spring_challenge_2022: 
 	cd game/spring_challenge_2022 && \
-	python3 -m pytest tests
+	python3 -m pytest tests --cov=src
 
 merge: merge_spring_challenge_2022
 

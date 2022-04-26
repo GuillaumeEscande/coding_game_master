@@ -1,9 +1,13 @@
 import numpy 
 from enum import Enum
 
+CONST_ATTACK_RANGE = 800 
+
 CONST_WIND_RANGE = 1280
 CONST_SHIELD_RANGE = 2200
 CONST_CONTROL_RANGE = 2200
+
+CONST_SPELL_MANA = 10
 
 class Spell(Enum):
     WIND = "WIND"
@@ -26,13 +30,23 @@ class Player() :
 
 
 class Game() :
-    def __init__(self):
+    def __init__(self, me, ennemy):
         self.__monsters = list()
         self.__threat_monsters = list()
         self.__potential_threat_monsters = list()
         self.__no_threat_monsters = list()
         self.__my_heros = list()
         self.__enemy_heros = list()
+        self.__me = me
+        self.__ennemy = ennemy
+
+    @property
+    def me(self):
+        return self.__me
+
+    @property
+    def ennemy(self):
+        return self.__ennemy
 
     @property
     def monsters(self):
