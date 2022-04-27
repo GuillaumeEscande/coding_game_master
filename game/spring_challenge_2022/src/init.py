@@ -1,6 +1,8 @@
 import numpy
 
 from board import Board
+from game import Player, Game
+from entity import Hero, Monster
 
 class Initializer():
     def __init__(self):
@@ -29,8 +31,8 @@ class Initializer():
             elif _type == 1 :
                 hero = Hero(int(_id), numpy.array([x, y]), int(shield_life), bool(is_controlled))
                 game.add_hero(hero, True)
-            elif _type == 1 :
+            elif _type == 2 :
                 hero = Hero(int(_id), numpy.array([x, y]), int(shield_life), bool(is_controlled))
-                game.add_hero(hero, True)
+                game.add_hero(hero, False)
 
         return game

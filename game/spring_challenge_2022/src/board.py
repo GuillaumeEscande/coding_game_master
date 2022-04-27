@@ -1,6 +1,6 @@
 import numpy 
 
-from cglogger import CGLogger
+from glogger import GLogger
 
 class Board() :
     SIZE = numpy.array([17630, 9000])
@@ -44,6 +44,19 @@ class Board() :
         if base is None :
             base = self.__my_base
         return numpy.array_equal(base, Board.top_left())
+
+    def is_bottom_right(self, base=None):
+        return not self.is_top_left(base)
+    
+
+    @classmethod
+    def crop_position(cls, initial_pos):
+        pos = initial_pos.copy()
+        pos[0] = max(pos[0], 0)
+        pos[0] = min(pos[0], Board.SIZE[0])
+        pos[1] = max(pos[1], 0)
+        pos[1] = min(pos[1], Board.SIZE[1])
+        return pos
 
     @classmethod
     def size(cls):
@@ -123,7 +136,7 @@ class Board() :
         # TODO utiliser la diretion du monstre plusot que la position de la base
         dir_monster_base = monster.pos - base
         dir_monster_base_normv = dir_monster_base/numpy.linalg.norm(dir_monster_base)
-        step = dir_monster_base_normv * Hero.attack_range() * 0.9
+        step = dir_monster_base_normv * Hero.ATTACK_RANGE * 0.9
 
         point_hero = monster.pos - step
         return point_hero

@@ -49,9 +49,6 @@ class Monster(Entity) :
 
 
 class Hero(Entity) :
+    ATTACK_RANGE = 800
     def __init__(self, id, pos, shield, is_controlled):
         Entity.__init__(self, id, pos, shield, is_controlled)
-
-    @classmethod
-    def attack_range(cls):
-        return 800

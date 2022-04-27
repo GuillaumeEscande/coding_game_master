@@ -9,10 +9,6 @@ CONST_CONTROL_RANGE = 2200
 
 CONST_SPELL_MANA = 10
 
-class Spell(Enum):
-    WIND = "WIND"
-    SHIELD = "SHIELD"
-    CONTROL = "CONTROL"
 
 class Player() :
     def __init__(self, health, mana):
