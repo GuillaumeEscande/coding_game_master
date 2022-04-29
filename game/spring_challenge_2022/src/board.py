@@ -19,26 +19,25 @@ class Board() :
         self.__pos_def_2_1 = self.get_pos_from_base(30, 4000)
         self.__pos_def_2_2 = self.get_pos_from_base(60, 4000)
         self.__pos_center_def = self.get_pos_from_base(45, 6000)
-        self.__pos_center_ultradef = self.get_pos_from_base(45, 2000)
+        self.__pos_center_ultradef = self.get_pos_from_base(45, 3000)
         
         self.__pos_center_ultradef = self.get_pos_from_base(45, 2000)
 
-        self.__pos_ultra_attack = self.get_pos_from_base(45, 4000, base=self.ennemy_base(self.__my_base))
-        GLogger.debug(self.__pos_ultra_attack)
+        self.__pos_ultra_attack = self.get_pos_from_base(45, 4000, base=self.enemy_base(self.__my_base))
 
     @property
     def my_base(self):
         return self.__my_base
 
-    def ennemy_base(self, base=None):
+    def enemy_base(self, base=None):
         if self.is_top_left(base):
             return Board.bottom_right()
         else:
             return Board.top_left()
             
     @property
-    def my_ennemy_base(self):
-        return self.ennemy_base(base=self.__my_base)
+    def my_enemy_base(self):
+        return self.enemy_base(base=self.__my_base)
 
     def is_top_left(self, base=None):
         if base is None :
@@ -123,20 +122,34 @@ class Board() :
         return pos_f.astype(int)
         
     
-    def get_nearest_monsters(self, pos, monters):
-        tmp_list = monters
+    @classmethod
+    def get_nearest(cls, pos, entities):
+        tmp_list = entities
         tmp_list.sort(key=lambda m: numpy.linalg.norm(m.pos-pos))
         return tmp_list
 
-    def get_distance_of(self, origin, target):
+    @classmethod
+    def get_distance_of(cls, origin, target):
         distance_vect = origin - target
         return numpy.linalg.norm(distance_vect)
 
-    def better_defensive_pos(self, hero, base, monster):
+    @classmethod
+    def better_defensive_pos(cls, hero, base, monster):
         # TODO utiliser la diretion du monstre plusot que la position de la base
         dir_monster_base = monster.pos - base
-        dir_monster_base_normv = dir_monster_base/numpy.linalg.norm(dir_monster_base)
+        dir_monster_base_normv = dir_monster_base / numpy.linalg.norm(dir_monster_base)
         step = dir_monster_base_normv * Hero.ATTACK_RANGE * 0.9
 
         point_hero = monster.pos - step
         return point_hero
+
+    @classmethod
+    def real_pos(cls, inital_pos, target, max_range):
+        real_target = target
+        if Board.get_distance_of(inital_pos, target) > max_range :
+            direction = target - inital_pos
+            direction_normalized = direction / numpy.linalg.norm(direction)
+            real_position = inital_pos + direction_normalized * max_range
+            real_target = real_position.astype(int)
+        
+        return Board.crop_position(real_target)

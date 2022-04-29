@@ -19,22 +19,12 @@ while True:
     enemy = initializer.read_player()
     game = initializer.read_game(me, enemy)
 
-    tactic = Tactic(board, game)
+    monster_finder = MonsterFinder(game.monsters)
+
+    tactic = Tactic(board, game, monster_finder)
+
+    tactic.new_protect_base(game.my_heros[0], board.pos_def_2_1).execute()
     
-    #tactic.play_defensive(game.my_heros[0], board.pos_center_def)
+    tactic.new_protect_base(game.my_heros[1], board.pos_def_2_2).execute()
 
-    if me.health > 2 :
-
-        tactic.play_ultra_offensive_shield(game.my_heros[0], board.pos_ultra_attack).execute()
-        
-        tactic.play_offensive_control(game.my_heros[1], board.pos_center_offensive).execute()
-
-        tactic.play_ultra_defensive(game.my_heros[2], board.pos_center_ultradef).execute()
-        
-    else:
-
-        tactic.play_ultra_offensive_shield(game.my_heros[0], board.pos_ultra_attack).execute()
-        
-        tactic.play_defensive(game.my_heros[1], board.pos_center_ultradef).execute()
-
-        tactic.play_ultra_defensive(game.my_heros[2], board.pos_center_ultradef).execute()
+    tactic.new_protect_base(game.my_heros[2], board.pos_center_ultradef).execute()

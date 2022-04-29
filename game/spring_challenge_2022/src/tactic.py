@@ -1,126 +1,189 @@
 import numpy
 
 from actions import *
+from action_checker import *
 
 monster_to_ignore=set()
 
 
 
 class Tactic() :
-    def __init__(self, board, game):
+    HEALTH_DISTANCE_RATIO = 2/400
+    def __init__(self, board, game, monster_finder):
         self.__game = game
         self.__board = board
+        self.__monster_finder = monster_finder
 
 
-    def play_defensive(self, hero, default_pos):
+    def vital_protect(self, hero):
+        # Trouver les monstres avec un rapport vie / distance impossible à kill
+        vital_monster = self.__monster_finder.find_target(True).find_distance(self.__board.my_base, distance_max=10000).find_ratio_health_distance(self.__board.my_base, ratio_min=Tactic.HEALTH_DISTANCE_RATIO).order_by_ratio_health_distance(self.__board.my_base)
         
-        threat_monters = self.__game.threat_monsters
-        nearest_threat_monster = self.__board.get_nearest_monsters(self.__board.my_base, threat_monters)
-        
-        nearest_threat_monster = [m for m in nearest_threat_monster if m.id not in monster_to_ignore]
-        
-        potential_threat_monsters = self.__game.potential_threat_monsters
-        nearest_potential_threat_monsters = self.__board.get_nearest_monsters(self.__board.my_base, potential_threat_monsters)
-        
-        nearest_potential_threat_monsters = [m for m in nearest_potential_threat_monsters if m.id not in monster_to_ignore]
-        
-        if len(nearest_threat_monster):
-            monster = nearest_threat_monster[0]
-            point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
-            return Move(point_hero)
-        elif len(nearest_potential_threat_monsters):
-            monster = potential_threat_monsters[0]
-            point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
-            return Move(point_hero)
-        else:
-            nearest_monsters = self.__board.get_nearest_monsters(hero.pos, self.__game.monsters)
-            if len(nearest_monsters):
-                monster = nearest_monsters[0]
-                if self.__board.get_distance_of(self.__board.my_base, monster.pos) < 10000 :
-                    point_hero = self.__board.better_defensive_pos(hero, default_pos, monster)
-                    return Move(point_hero)
-                else:
-                    return Move(default_pos)
-            else:
-                return Move(default_pos)
+        # Trouver les monstres ataignables 
+        if len(vital_monster.monsters) :
+            act_check = ActionChecker(self.__game, vital_monster)
 
+            wind = Wind(self.__board.my_enemy_base)
+            result = act_check.check_action(wind, hero)
 
+            if result.hit :
+                wind.set_comment("vital_protect - wind")
+                return wind
 
-
-    def play_ultra_defensive(self, hero, default_pos, monster_rank=0):
-        
-        threat_monters = self.__game.threat_monsters
-        nearest_threat_monster = self.__board.get_nearest_monsters(self.__board.my_base, threat_monters)
-        
-        if len(nearest_threat_monster):
-            monster = nearest_threat_monster[monster_rank]
-            # Get distance of base
-            base_distance = self.__board.get_distance_of(self.__board.my_base, monster.pos)
-            if base_distance < 2000 and self.__game.me.mana > Action.SPELL_MANA:
-                return Wind(self.__board.my_ennemy_base)
-            else :
-                point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
-                return Move(point_hero)
-        else:
-            return Move(default_pos)
-
-
-
-    def play_offensive_control(self, hero, default_pos):
-        
-        potential_threat_monsters = self.__game.potential_threat_monsters
-
-        potential_threat_monsters = [m for m in potential_threat_monsters if m.id not in monster_to_ignore]
-        
-        if len(potential_threat_monsters):
-
-            # On change le monstre le plus proche de la base potentielement daneureux
-            nearest_potential_threat_monsters = self.__board.get_nearest_monsters(self.__board.my_base, list(potential_threat_monsters))
-
-            GLogger.debug( [str(m.id) for m in nearest_potential_threat_monsters] )
+            control = Control(vital_monster.monsters[0].id, self.__board.my_enemy_base)
+            result = act_check.check_action(control, hero)
             
-            monster = nearest_potential_threat_monsters[0]
-            if self.__board.get_distance_of(hero.pos, monster.pos) < Control.RANGE and self.__game.me.mana > Action.SPELL_MANA * 2:
-                GLogger.spell_control(monster.id, self.__board.my_ennemy_base)
-                monster_to_ignore.add(monster.id)
-            else :
-                point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
-                return Move(point_hero)
-        
-        else:
-            # On envoie le monstre le plus proche vers l'ennemy
-            nearest_monsters = self.__board.get_nearest_monsters(hero.pos, self.__game.monsters)
-            nearest_monsters = [m for m in nearest_monsters if m.id not in monster_to_ignore]
+            if result.hit :
+                control.set_comment("vital_protect - control")
+                return control
 
+            return Move(vital_monster.monsters[0].pos)
+        
+        return None
+
+
+    def soft_defence(self, hero):
+        # Trouver les mostres les plus proches de la base qui la target
+        target_monsters = self.__monster_finder.find_target(True).find_distance(self.__board.my_base, distance_max=5000).order_by_distance(self.__board.my_base)
+        
+        if len(target_monsters.monsters) :
+            act_check = ActionChecker(self.__game, target_monsters)
+
+            move = Move(target_monsters.monsters[0].pos)
+            result = act_check.check_action(move, hero)
             
-            if len(nearest_monsters):
-                monster = nearest_monsters[0]
+            move.set_comment("soft_defence - move")
+            return move
+        
+        return None
+
+    def preventive_defence(self, hero):
+        # Trouver les mostres qui target la base
+        target_monsters = self.__monster_finder.find_threat(True).find_distance(self.__board.my_base, distance_max=5000)
                 
-                if self.__game.me.mana > 50 and self.__board.get_distance_of(hero.pos, monster.pos) < Control.RANGE and self.__game.me.mana > Action.SPELL_MANA * 2:
-                    monster_to_ignore.add(monster.id)
-                    return Control(monster.id, self.__board.my_ennemy_base)
-                else :
-                    point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
-                    return Move(point_hero)
-            else :
-                return Move(default_pos + numpy.random.randint(1000, size=(2)))
+        if len(target_monsters.monsters) :
+            act_check = ActionChecker(self.__game, target_monsters)
+
+            move = Move(target_monsters.monsters[0].pos)
+            result = act_check.check_action(move, hero)
+            
+            move.set_comment("preventive_defence - move")
+            return move
+    
+    def new_protect_base(self, hero, default_pos, wind=True, control=True, close_distance=4000):
+        vital = self.vital_protect(hero)
+
+        if vital:
+            return vital
+        
+        soft = self.soft_defence(hero)
+        if soft:
+            return soft
+            
+        preventive = self.soft_defence(hero)
+        if preventive:
+            return preventive
+
+        
+        move = Move(default_pos)
+        move.set_comment("new_protect_base - default_pos")
+        return move
+
+
+    # def play_defensive(self, hero, default_pos):
+        
+    #     nearest_threat_monster = self.__monster_finder.find(near_pos=self.__board.my_base, threat_for=True, ignore_id=monster_to_ignore)
+        
+    #     nearest_potential_threat_monsters = self.__monster_finder.find(near_pos=self.__board.my_base, target=True, ignore_id=monster_to_ignore)
+                
+        
+    #     if len(nearest_threat_monster.monsters):
+    #         monster = nearest_threat_monster.monsters[0]
+    #         point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
+    #         return Move(point_hero)
+    #     elif len(nearest_potential_threat_monsters.monsters):
+    #         monster = potential_threat_monsters.monsters[0]
+    #         point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
+    #         return Move(point_hero)
+    #     else:
+    #         nearest_monsters = self.__monster_finder.monsters.find(near_pos=hero.pos, threat_for=False)
+    #         if len(nearest_monsters.monsters):
+    #             monster = nearest_monsters.monsters[0]
+    #             return Move(nearest_monsters)
+    #         else:
+    #             return Move(default_pos)
+
+
+
+
+    # def play_ultra_defensive(self, hero, default_pos, monster_rank=0):
+        
+    #     nearest_threat_monster = self.__monster_finder.find(near_pos=self.__board.my_base, threat_for=True)
+
+        
+    #     if len(nearest_threat_monster):
+
+    #         nearest_threat_monster_range_wind = nearest_threat_monster.find(near_pos=self.__board.my_base, distance_pos=hero.pos, distance_max=Action.SPELL_MANA )
+
+    #         if self.__monster_finder.me.mana > Action.SPELL_MANA and len(nearest_threat_monster_range_wind.monsters) > 0 :
+    #             return Wind(self.__board.my_enemy_base)
+    #         else :
+    #             point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, nearest_threat_monster[0])
+    #             return Move(point_hero)
+    #     else:
+    #         return Move(default_pos)
+
+
+
+    # def play_offensive_control(self, hero, default_pos):
+
+    #     nearest_potential_threat_monsters = self.__monster_finder.find(near_pos=self.__board.my_base, target=True, ignore_id=monster_to_ignore)
+        
+    #     if len(nearest_potential_threat_monsters.monsters):
+            
+    #         nearest_potential_threat_monsters = nearest_potential_threat_monsters.find(near_pos=self.__board.my_base, distance_max=2000 )
+    #         monster = nearest_potential_threat_monsters[0]
+    #         if self.__board.get_distance_of(hero.pos, monster.pos) < Control.RANGE and self.__game.me.mana > Action.SPELL_MANA * 2:
+    #             GLogger.spell_control(monster.id, self.__board.my_enemy_base)
+    #             monster_to_ignore.add(monster.id)
+    #         else :
+    #             point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
+    #             return Move(point_hero)
+        
+    #     else:
+    #         # On envoie le monstre le plus proche vers l'enemy
+    #         nearest_monsters = self.__board.get_nearest(hero.pos, self.__monster_finder.monsters)
+    #         nearest_monsters = [m for m in nearest_monsters if m.id not in monster_to_ignore]
+
+            
+    #         if len(nearest_monsters):
+    #             monster = nearest_monsters[0]
+                
+    #             if self.__game.me.mana > 50 and self.__board.get_distance_of(hero.pos, monster.pos) < Control.RANGE and self.__game.me.mana > Action.SPELL_MANA * 2:
+    #                 monster_to_ignore.add(monster.id)
+    #                 return Control(monster.id, self.__board.my_enemy_base)
+    #             else :
+    #                 point_hero = self.__board.better_defensive_pos(hero, self.__board.my_base, monster)
+    #                 return Move(point_hero)
+    #         else :
+    #             return Move(default_pos + numpy.random.randint(1000, size=(2)))
         
             
 
 
-    def play_ultra_offensive_shield(self, hero, default_pos):
+    # def play_ultra_offensive_shield(self, hero, default_pos):
 
-        nearest_monsters = self.__board.get_nearest_monsters(self.__board.my_ennemy_base, self.__game.monsters)
-        nearest_monsters = [m for m in nearest_monsters if not m.shield > 1]
+    #     nearest_monsters = self.__board.get_nearest(self.__board.my_enemy_base, self.__monster_finder.monsters)
+    #     nearest_monsters = [m for m in nearest_monsters if not m.shield > 1]
 
-        if len(nearest_monsters) :
-            monster = nearest_monsters[0]
-            if self.__board.get_distance_of(self.__board.my_ennemy_base, monster.pos) < 4000 :
-                if self.__board.get_distance_of(hero.pos, monster.pos) < Shield.RANGE and self.__game.me.mana > Action.SPELL_MANA * 2 and self.__board.get_distance_of(hero.pos, monster.pos) > Shield.RANGE :
-                    GLogger.spell_shield(monster.id)
-                else :
-                    GLogger.move(monster.pos)
-            else:
-                GLogger.move(default_pos)
-        else:
-            GLogger.move(default_pos)
+    #     if len(nearest_monsters) :
+    #         monster = nearest_monsters[0]
+    #         if self.__board.get_distance_of(self.__board.my_enemy_base, monster.pos) < 4000 :
+    #             if self.__board.get_distance_of(hero.pos, monster.pos) < Shield.RANGE and self.__game.me.mana > Action.SPELL_MANA * 2 and self.__board.get_distance_of(hero.pos, monster.pos) > Shield.RANGE :
+    #                 GLogger.spell_shield(monster.id)
+    #             else :
+    #                 GLogger.move(monster.pos)
+    #         else:
+    #             GLogger.move(default_pos)
+    #     else:
+    #         GLogger.move(default_pos)

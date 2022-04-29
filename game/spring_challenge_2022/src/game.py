@@ -1,15 +1,6 @@
 import numpy 
 from enum import Enum
 
-CONST_ATTACK_RANGE = 800 
-
-CONST_WIND_RANGE = 1280
-CONST_SHIELD_RANGE = 2200
-CONST_CONTROL_RANGE = 2200
-
-CONST_SPELL_MANA = 10
-
-
 class Player() :
     def __init__(self, health, mana):
         self.__health = health
@@ -26,23 +17,20 @@ class Player() :
 
 
 class Game() :
-    def __init__(self, me, ennemy):
+    def __init__(self, me, enemy):
         self.__monsters = list()
-        self.__threat_monsters = list()
-        self.__potential_threat_monsters = list()
-        self.__no_threat_monsters = list()
         self.__my_heros = list()
         self.__enemy_heros = list()
         self.__me = me
-        self.__ennemy = ennemy
+        self.__enemy = enemy
 
     @property
     def me(self):
         return self.__me
 
     @property
-    def ennemy(self):
-        return self.__ennemy
+    def enemy(self):
+        return self.__enemy
 
     @property
     def monsters(self):
@@ -50,25 +38,6 @@ class Game() :
 
     def add_monster(self, monster):
         self.__monsters.append(monster)
-        if monster.threat_for == 1 :
-            if monster.near_base == 1 :
-                self.__threat_monsters.append(monster)
-            else:
-                self.__potential_threat_monsters.append(monster)
-        else :
-            self.__no_threat_monsters.append(monster)
-
-    @property
-    def threat_monsters(self):
-        return self.__threat_monsters
-
-    @property
-    def potential_threat_monsters(self):
-        return self.__potential_threat_monsters
-
-    @property
-    def no_threat_monsters(self):
-        return self.__no_threat_monsters
         
     @property
     def my_heros(self):
