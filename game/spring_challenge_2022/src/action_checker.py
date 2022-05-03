@@ -59,7 +59,7 @@ class ActionChecker():
         return ActionResult(hitted_monster_nb, 0)
 
     def _check_shield(self, hero, entity_id):
-        hitted_monster = self.__monster_finder.find_distance(hero.pos, distance_max=Shield.RANGE).find_shield(shield_max=0)
+        hitted_monster = self.__monster_finder.find_id(entity_id).find_distance(hero.pos, distance_max=Shield.RANGE).find_shield(shield_max=0)
         hitted_monster_nb = len(hitted_monster.monsters)
         return ActionResult(hitted_monster_nb, 0)
 

@@ -16,14 +16,14 @@ class Board() :
         self.__pos_def_3_2 = self.get_pos_from_base((90/4)*2, 5000)
         self.__pos_def_3_3 = self.get_pos_from_base((90/4)*3, 5000)
         
-        self.__pos_def_2_1 = self.get_pos_from_base(30, 4000)
-        self.__pos_def_2_2 = self.get_pos_from_base(60, 4000)
+        self.__pos_def_2_1 = self.get_pos_from_base(30, 6000)
+        self.__pos_def_2_2 = self.get_pos_from_base(60, 6000)
         self.__pos_center_def = self.get_pos_from_base(45, 6000)
         self.__pos_center_ultradef = self.get_pos_from_base(45, 3000)
         
         self.__pos_center_ultradef = self.get_pos_from_base(45, 2000)
 
-        self.__pos_ultra_attack = self.get_pos_from_base(45, 4000, base=self.enemy_base(self.__my_base))
+        self.__pos_ultra_attack = self.get_pos_from_base(45, 6000, base=self.enemy_base(self.__my_base))
 
     @property
     def my_base(self):
@@ -47,6 +47,9 @@ class Board() :
     def is_bottom_right(self, base=None):
         return not self.is_top_left(base)
     
+    @classmethod
+    def is_in_board(cls, pos):
+        return pos[0] >= 0 and pos[1] >= 0 and  pos[0] <= Board.SIZE[0] and pos[1] <= Board.SIZE[1]
 
     @classmethod
     def crop_position(cls, initial_pos):

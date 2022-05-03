@@ -20,6 +20,10 @@ class Action():
     def execute(self):
         pass
 
+    def equals(self):
+        False
+    
+
 class Wait(Action):
 
     def __init__(self):

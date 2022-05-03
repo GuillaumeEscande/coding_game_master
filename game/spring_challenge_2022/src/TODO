@@ -1,5 +1,4 @@
-- Fnir d'utiliser le monster manager dans tactic
-- Faire une méthode de monstre ultra danjeureux avec la distance / vie des monstres
-- Ajouter des dans Action un is_effective(monster) pour vérifier si le sort affecte le monstre
+- Ajouter la notion de Team
+- Ajouter le calcul de baricentre avec un groupe d'individu et donc le calcul de la position la plus destructrice pour un id d'araigné donné
 - Ajouter ma detection du hero adverse dans a base
 - Ajouter l'action MoveAround avec un random

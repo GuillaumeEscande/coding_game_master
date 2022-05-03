@@ -15,7 +15,7 @@ class Tactic() :
         self.__monster_finder = monster_finder
 
 
-    def vital_protect(self, hero):
+    def __vital_protect(self, hero):
         # Trouver les monstres avec un rapport vie / distance impossible à kill
         vital_monster = self.__monster_finder.find_target(True).find_distance(self.__board.my_base, distance_max=10000).find_ratio_health_distance(self.__board.my_base, ratio_min=Tactic.HEALTH_DISTANCE_RATIO).order_by_ratio_health_distance(self.__board.my_base)
         
@@ -42,7 +42,7 @@ class Tactic() :
         return None
 
 
-    def soft_defence(self, hero):
+    def __soft_defence(self, hero):
         # Trouver les mostres les plus proches de la base qui la target
         target_monsters = self.__monster_finder.find_target(True).find_distance(self.__board.my_base, distance_max=5000).order_by_distance(self.__board.my_base)
         
@@ -57,7 +57,7 @@ class Tactic() :
         
         return None
 
-    def preventive_defence(self, hero):
+    def __preventive_defence(self, hero):
         # Trouver les mostres qui target la base
         target_monsters = self.__monster_finder.find_threat(True).find_distance(self.__board.my_base, distance_max=5000)
                 
@@ -71,16 +71,16 @@ class Tactic() :
             return move
     
     def new_protect_base(self, hero, default_pos, wind=True, control=True, close_distance=4000):
-        vital = self.vital_protect(hero)
+        vital = self.__vital_protect(hero)
 
         if vital:
             return vital
         
-        soft = self.soft_defence(hero)
+        soft = self.__soft_defence(hero)
         if soft:
             return soft
             
-        preventive = self.soft_defence(hero)
+        preventive = self.__preventive_defence(hero)
         if preventive:
             return preventive
 
