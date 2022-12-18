@@ -39,6 +39,7 @@ OUTPUT_SRC="${OUTPUT}/main.py"
 
 echo "#### AUTOMATICALY - GENERATED  ####" > "${OUTPUT_SRC}"
 
+
 for LIB in ${LIBS[@]}
 do
     for file in $(ls ./libs/$LIB/src/*.py)
@@ -71,6 +72,9 @@ do
     sed -i "s|^from $filename.*||g" "${OUTPUT_SRC}"
 done
 
+# Remove future import
+perl -i -0pe 's|from __future__ import annotations||g' "${OUTPUT_SRC}"
+
 # Remove comments
 perl -i -0pe 's|#.*||g' "${OUTPUT_SRC}"
 
@@ -84,3 +88,7 @@ perl -i -0pe 's|    | |g' "${OUTPUT_SRC}"
 perl -i -0pe 's| :|:|g' "${OUTPUT_SRC}"
 perl -i -0pe 's| =|=|g' "${OUTPUT_SRC}"
 perl -i -0pe 's|= |=|g' "${OUTPUT_SRC}"
+
+
+# Remove future import
+perl -i -0pe 's|(.*)|from __future__ import annotations\n\1|ms' "${OUTPUT_SRC}"
